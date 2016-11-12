@@ -136,8 +136,8 @@ static void begin(void)		{ fprintf(output, "\n  {"); }
 static void end(void)		{ fprintf(output, "\n  }"); }
 static void label(int n)	{ fprintf(output, "\n  l%d:;\t", n); }
 static void jump(int n)		{ fprintf(output, "  goto l%d;", n); }
-static void save(int n)		{ fprintf(output, "  int yypos%d= yy->__pos, yythunkpos%d= yy->__thunkpos;", n, n); }
-static void restore(int n)	{ fprintf(output,     "  yy->__pos= yypos%d; yy->__thunkpos= yythunkpos%d;", n, n); }
+static void save(int n)		{ fprintf(output, "\n  int yypos%d= yy->__pos, yythunkpos%d= yy->__thunkpos;", n, n); }
+static void restore(int n)	{ fprintf(output,     "\n  yy->__pos= yypos%d; yy->__thunkpos= yythunkpos%d;", n, n); }
 
 static void Node_compile_c_ko(Node *node, int ko)
 {
@@ -150,11 +150,11 @@ static void Node_compile_c_ko(Node *node, int ko)
       break;
 
     case Dot:
-      fprintf(output, "  if (!yymatchDot(yy)) goto l%d;", ko);
+      fprintf(output, "\n  if (!yymatchDot(yy)) goto l%d;", ko);
       break;
 
     case Name:
-      fprintf(output, "  if (!yy_%s(yy)) goto l%d;", node->name.rule->rule.name, ko);
+      fprintf(output, "\n  if (!yy_%s(yy)) goto l%d;", node->name.rule->rule.name, ko);
       if (node->name.variable)
 	fprintf(output, "  yyDo(yy, yySet, %d, 0);", node->name.variable->variable.offset);
       break;
@@ -166,20 +166,20 @@ static void Node_compile_c_ko(Node *node, int ko)
 	if (1 == len)
 	  {
 	    if ('\'' == node->string.value[0])
-	      fprintf(output, "  if (!yymatchChar(yy, '\\'')) goto l%d;", ko);
+	      fprintf(output, "\n  if (!yymatchChar(yy, '\\'')) goto l%d;", ko);
 	    else
-	      fprintf(output, "  if (!yymatchChar(yy, '%s')) goto l%d;", node->string.value, ko);
+	      fprintf(output, "\n  if (!yymatchChar(yy, '%s')) goto l%d;", node->string.value, ko);
 	  }
 	else
 	  if (2 == len && '\\' == node->string.value[0])
-	    fprintf(output, "  if (!yymatchChar(yy, '%s')) goto l%d;", node->string.value, ko);
+	    fprintf(output, "\n  if (!yymatchChar(yy, '%s')) goto l%d;", node->string.value, ko);
 	  else
-	    fprintf(output, "  if (!yymatchString(yy, \"%s\")) goto l%d;", node->string.value, ko);
+	    fprintf(output, "\n  if (!yymatchString(yy, \"%s\")) goto l%d;", node->string.value, ko);
       }
       break;
 
     case Class:
-      fprintf(output, "  if (!yymatchClass(yy, (unsigned char *)\"%s\")) goto l%d;", makeCharClass(node->cclass.value), ko);
+      fprintf(output, "\n  if (!yymatchClass(yy, (unsigned char *)\"%s\")) goto l%d;", makeCharClass(node->cclass.value), ko);
       break;
 
     case Action:
